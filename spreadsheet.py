@@ -14,18 +14,32 @@ class SpreadSheet:
         return self._cells.get(cell, '')
 
     def evaluate(self, cell: str) -> Union[int, str]:
+        if cell in self._evaluating:
+            return "#Circular"
+        self._evaluating.add(cell)
+        
         value = self.get(cell)
         if value.isdigit():
-            return int(value)
-        try:
-            float(value)
-            return "#Error"
-        except ValueError:
-            if value.startswith("'") and value.endswith("'"):
-                return value[1:-1]
-            if value.startswith("='") and value.endswith("'"):
-                return value[2:-1]
-            if value.startswith("=") and value[1:].isdigit():
-                return value[1:]
-            return "#Error"
+            result = int(value)
+        elif value.startswith("'") and value.endswith("'"):
+            result = value[1:-1]
+        elif value.startswith("='") and value.endswith("'"):
+            result = value[2:-1]
+        elif value.startswith("="):
+            ref = value[1:]
+            if ref.isdigit():
+                result = int(ref)
+            elif ref in self._cells:
+                result = self.evaluate(ref)
+            else:
+                result = "#Error"
+        else:
+            try:
+                float(value)
+                result = "#Error"
+            except ValueError:
+                result = "#Error"
+        
+        self._evaluating.remove(cell)
+        return result
 
