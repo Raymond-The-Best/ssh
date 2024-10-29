@@ -2,6 +2,7 @@
 from typing import Union
 
 class SpreadSheet:
+    OPERATORS = ["+", "-", "*", "/", "%"]
 
     def __init__(self):
         self._cells = {}
@@ -31,6 +32,13 @@ class SpreadSheet:
                 result = int(ref)
             elif ref in self._cells:
                 result = self.evaluate(ref)
+            elif any(operator in ref for operator in self.OPERATORS):
+                try:
+                    result = eval(ref)
+                    if not isinstance(result, int):
+                        result = "#Error"
+                except:
+                    result = "#Error"
             else:
                 result = "#Error"
         else:
