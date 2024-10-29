@@ -21,5 +21,7 @@ class SpreadSheet:
             float(value)
             return "#Error"
         except ValueError:
-            return value
+            if value.startswith("'") and value.endswith("'"):
+                return value
+            return "#Error"
 
